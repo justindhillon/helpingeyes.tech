@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -50,10 +51,12 @@ export default function Home() {
           bg-gradient-to-r from-pink-500 to-yellow-500 hover:brightness-50">
             Get Help
           </button>
-          <button type="button" className="text-white rounded px-10 py-5 w-full
-          bg-gradient-to-r from-pink-500 to-yellow-500 hover:brightness-50">
-            Volunteer
-          </button>
+          <Link href="/api/auth/signin" className="w-full">
+            <button type="button" className="text-white rounded px-10 py-5 w-full
+            bg-gradient-to-r from-pink-500 to-yellow-500 hover:brightness-50">
+              Volunteer
+            </button>
+          </Link>
         </div>
       </div>
     </main>
