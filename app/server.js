@@ -1,15 +1,15 @@
 // server.js
 const express = require('express');
-const http = require('http');
+const https = require('https');
 const socketIo = require('socket.io');
 const cors = require('cors');
 
 const app = express();
-app.use(cors({ origin: 'http://helpingeyes.tech:3000' })); // Allow CORS for requests from Next.js app
-const server = http.createServer(app);
+app.use(cors({ origin: 'https://helpingeyes.tech:3000' })); // Allow CORS for requests from Next.js app
+const server = https.createServer(app);
 const io = socketIo(server, {
     cors: {
-        origin: "http://helpingeyes.tech:3000",
+        origin: "https://helpingeyes.tech:3000",
         methods: ["GET", "POST"]
     }
 });

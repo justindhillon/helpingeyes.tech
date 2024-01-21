@@ -16,7 +16,7 @@ const CameraStream = () => {
     const [clientIdentifier, setClientIdentifier] = useState('');
 
     useEffect(() => {
-        socketRef.current = io('http://helpingeyes.tech:3001');
+        socketRef.current = io('https://helpingeyes.tech:3001');
         socketRef.current.on('signal', handleSignal);
 
         navigator.mediaDevices.getUserMedia({ video: true })
