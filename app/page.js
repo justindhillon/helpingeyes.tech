@@ -1,3 +1,9 @@
+
+import React from 'react';
+import dynamic from 'next/dynamic';
+
+const MapComponent = dynamic(() => import('../components/map'), { ssr: false });
+import Locations from '@/components/location';
 import Image from "next/image";
 
 export default function Home() {
@@ -108,6 +114,13 @@ export default function Home() {
           </p>
         </a>
       </div>
+      <div className='mapBox'>
+        <Locations />
+        <div id='app'>
+          <MapComponent />
+        </div>
+      </div>
+
     </main>
   );
 }
