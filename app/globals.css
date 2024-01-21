@@ -2,32 +2,48 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+.mapBox {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  align-items: center;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
+#app {
+  height: 100%;
+  width: 100%;
+  position: relative;
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+#app canvas:first-of-type {
+  display: none !important;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+#locationBox {
+  width: 100%;
+  height: 40%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  overflow-wrap: normal;
+  margin-bottom: 2rem;
+}
+
+#locationBox>h1 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  font-weight: bold;
+}
+
+#locationBox>ul {
+  columns: 4;
+  width: 100%;
+  flex-direction: column;
+  height: 50%;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+#locationBox>ul>li {
+  margin-bottom: 0.5rem;
 }
