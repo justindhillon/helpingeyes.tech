@@ -1,13 +1,12 @@
-// pages/index.tsx
+"use client"
+
 import { Landing } from "./Landing";
 
-const Home = () => {
-  return (
-    <div>
-      <h1>My Next.js App</h1>
-      <Landing />
-    </div>
-  );
-};
+function App() {
 
-export default Home;
+  return (
+    <Landing />
+  )
+}
+
+export default App

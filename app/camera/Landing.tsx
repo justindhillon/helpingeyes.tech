@@ -1,10 +1,9 @@
-"use client"
-
 import { useEffect, useRef, useState } from "react"
+import { Link } from "react-router-dom";
 import { Room } from "./Room";
 
 export const Landing = () => {
-    const [name, setName] = useState("");
+    const [name, setName] = useState("1");
     const [localAudioTrack, setLocalAudioTrack] = useState<MediaStreamTrack | null>(null);
     const [localVideoTrack, setlocalVideoTrack] = useState<MediaStreamTrack | null>(null);
     const videoRef = useRef<HTMLVideoElement>(null);
