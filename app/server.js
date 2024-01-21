@@ -5,11 +5,11 @@ const socketIo = require('socket.io');
 const cors = require('cors');
 
 const app = express();
-app.use(cors({ origin: 'http://localhost:3000' })); // Allow CORS for requests from Next.js app
+app.use(cors({ origin: 'http://helpingeyes.tech:3000' })); // Allow CORS for requests from Next.js app
 const server = http.createServer(app);
 const io = socketIo(server, {
     cors: {
-        origin: "http://localhost:3000",
+        origin: "http://helpingeyes.tech:3000",
         methods: ["GET", "POST"]
     }
 });
