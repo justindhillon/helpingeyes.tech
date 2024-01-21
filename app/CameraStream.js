@@ -33,6 +33,7 @@ const CameraStream = () => {
         // Generate a random 4-digit identifier
         const identifier = Math.floor(1000 + Math.random() * 9000).toString();
         setClientIdentifier(identifier);
+        socketRef.current.emit("register", identifier);
         return () => {
             if (socketRef.current) {
                 socketRef.current.disconnect();
@@ -77,38 +78,66 @@ const CameraStream = () => {
     const handleSignal = (data) => {
         if (!peerConnectionRef.current) return;
 
+        // Handle incoming ICE candidates
         if (data.candidate) {
             peerConnectionRef.current.addIceCandidate(new RTCIceCandidate(data.candidate));
-        } else if (data.offer) {
+        }
+
+        // Handle incoming offers
+        else if (data.offer) {
             peerConnectionRef.current.setRemoteDescription(new RTCSessionDescription(data.offer))
                 .then(() => peerConnectionRef.current.createAnswer())
                 .then(answer => peerConnectionRef.current.setLocalDescription(answer))
                 .then(() => {
                     socketRef.current.emit('signal', { answer: peerConnectionRef.current.localDescription });
+                })
+                .catch(error => {
+                    console.error('Error responding to offer:', error);
+                    setErrorMessage('Error responding to offer.');
                 });
-        } else if (data.answer) {
-            peerConnectionRef.current.setRemoteDescription(new RTCSessionDescription(data.answer));
-        } else if (data.closeConnection) {
-            closeConnection();
         }
 
-        if (data.callInitiated) {
-            setIncomingCall(true);
+        // Handle incoming answers
+        else if (data.answer) {
+            peerConnectionRef.current.setRemoteDescription(new RTCSessionDescription(data.answer));
+        }
+
+        // Handle incoming call initiation
+        else if (data.callInitiated) {
+            const acceptCall = confirm(`Incoming call from ID: ${data.from}. Do you want to accept?`);
+            if (acceptCall) {
+                setIncomingCall(true);
+                socketRef.current.emit('call-accepted', {
+                    to: data.from,
+                    from: clientIdentifier
+                });
+
+                // Additional logic to create or accept WebRTC offer/answer
+            }
+        }
+
+        // Handle disconnection or call closing
+        else if (data.closeConnection) {
+            closeConnection();
         }
     };
 
-    const createOffer = (recipientIdentifier) => {
-        setIsCallInitiated(true);
-        socketRef.current.emit('call-initiated', { to: recipientIdentifier });
-        peerConnectionRef.current.createOffer()
-            .then(offer => peerConnectionRef.current.setLocalDescription(offer))
-            .then(() => {
-                socketRef.current.emit('signal', { offer: peerConnectionRef.current.localDescription });
-            })
-            .catch(error => {
-                console.error('Error creating an offer:', error);
-                setErrorMessage('Error creating an offer.');
+    const createOffer = () => {
+        const recipientId = prompt("Enter the recipient's ID:");
+        if (recipientId) {
+            // Request ID validation from the server
+            socketRef.current.emit('validate-id', { recipientId }, (response) => {
+                if (response.isValid) {
+                    setIsCallInitiated(true);
+                    socketRef.current.emit('call-initiated', {
+                        to: recipientId,
+                        from: clientIdentifier
+                    });
+                } else {
+                    alert("Recipient ID not found.");
+                }
             });
+        }
     };
 
     // Function to handle call acceptance
@@ -144,7 +173,7 @@ const CameraStream = () => {
             <video ref={localVideoRef} autoPlay />
             <video ref={remoteVideoRef} autoPlay />
             {!isCallInitiated && (
-                <button onClick={() => createOffer('recipient-identifier-here')}>
+                <button onClick={() => createOffer()}>
                     Call
                 </button>
             )}
