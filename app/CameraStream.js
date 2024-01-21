@@ -10,6 +10,10 @@ const CameraStream = () => {
     const peerConnectionRef = useRef(null);
     const socketRef = useRef(null);
     const [errorMessage, setErrorMessage] = useState('');
+    // Add to the CameraStream component's state
+    const [isCallInitiated, setIsCallInitiated] = useState(false);
+    const [incomingCall, setIncomingCall] = useState(false);
+    const [clientIdentifier, setClientIdentifier] = useState('');
 
     useEffect(() => {
         socketRef.current = io('http://localhost:3001');
@@ -26,7 +30,9 @@ const CameraStream = () => {
                 console.error("Error accessing the camera:", error);
                 setErrorMessage("Error accessing the camera.");
             });
-
+        // Generate a random 4-digit identifier
+        const identifier = Math.floor(1000 + Math.random() * 9000).toString();
+        setClientIdentifier(identifier);
         return () => {
             if (socketRef.current) {
                 socketRef.current.disconnect();
@@ -85,9 +91,15 @@ const CameraStream = () => {
         } else if (data.closeConnection) {
             closeConnection();
         }
+
+        if (data.callInitiated) {
+            setIncomingCall(true);
+        }
     };
 
-    const createOffer = () => {
+    const createOffer = (recipientIdentifier) => {
+        setIsCallInitiated(true);
+        socketRef.current.emit('call-initiated', { to: recipientIdentifier });
         peerConnectionRef.current.createOffer()
             .then(offer => peerConnectionRef.current.setLocalDescription(offer))
             .then(() => {
@@ -96,6 +108,23 @@ const CameraStream = () => {
             .catch(error => {
                 console.error('Error creating an offer:', error);
                 setErrorMessage('Error creating an offer.');
+            });
+    };
+
+    // Function to handle call acceptance
+    const acceptCall = () => {
+        setIncomingCall(false); // Hide the 'Accept Call' button
+
+        // Create an answer to the caller's offer
+        peerConnectionRef.current.createAnswer()
+            .then(answer => peerConnectionRef.current.setLocalDescription(answer))
+            .then(() => {
+                // Send the answer to the caller via the server
+                socketRef.current.emit('signal', { answer: peerConnectionRef.current.localDescription });
+            })
+            .catch(error => {
+                console.error('Error creating an answer:', error);
+                setErrorMessage('Error creating an answer.');
             });
     };
 
@@ -111,9 +140,15 @@ const CameraStream = () => {
 
     return (
         <div>
+            <p>Your ID: {clientIdentifier}</p> {/* Display the client's identifier */}
             <video ref={localVideoRef} autoPlay />
             <video ref={remoteVideoRef} autoPlay />
-            <button onClick={createOffer}>Call</button>
+            {!isCallInitiated && (
+                <button onClick={() => createOffer('recipient-identifier-here')}>
+                    Call
+                </button>
+            )}
+            {incomingCall && <button onClick={acceptCall}>Accept Call</button>}
             {errorMessage && <p>Error: {errorMessage}</p>}
         </div>
     );
