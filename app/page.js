@@ -1,4 +1,4 @@
-import CameraStream from "@/app/CameraStream";
+import CameraStream from "./CameraStream";
 
 export default function Home() {
   return (
