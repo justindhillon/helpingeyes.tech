@@ -1,6 +1,19 @@
 import Image from "next/image";
 
 export default function Home() {
+
+
+  function redirectVolunteer() {
+    var url = "https://www.helpingeyes.tech/map";
+    window.location(url);
+  }
+
+  function redirectHelp() {
+    var url = "https://www.helpingeyes.tech/camera";
+    window.location(url);
+  }
+
+
   return (
     <main className='min-h-screen bg-gradient-to-tr from-[#60072C]
     via-[#120B2E] to-[#091498] flex justify-center'>
@@ -46,14 +59,18 @@ export default function Home() {
 
 
         <div className="mt-12 w-full flex flex-col gap-10 lg:mt-24 lg:flex-row">
-          <button type="button" className="text-white rounded px-10 py-5 w-full
+          <a href="https://www.helpingeyes.tech/map">
+            <button type="button" className="text-white rounded px-10 py-5 w-full
           bg-gradient-to-r from-pink-500 to-yellow-500 hover:brightness-50">
-            Get Help
-          </button>
-          <button type="button" className="text-white rounded px-10 py-5 w-full
+              Get Help
+            </button>
+          </a>
+          <a href="https://www.helpingeyes.tech/map">
+            <button type="button" className="text-white rounded px-10 py-5 w-full
           bg-gradient-to-r from-pink-500 to-yellow-500 hover:brightness-50">
-            Volunteer
-          </button>
+              Volunteer
+            </button>
+          </a>
         </div>
       </div>
     </main>
