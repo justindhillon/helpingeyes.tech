@@ -10,9 +10,13 @@ const CameraStream = () => {
     const peerConnectionRef = useRef(null);
     const socketRef = useRef(null);
     const [errorMessage, setErrorMessage] = useState('');
+    // Add to the CameraStream component's state
+    const [isCallInitiated, setIsCallInitiated] = useState(false);
+    const [incomingCall, setIncomingCall] = useState(false);
+    const [clientIdentifier, setClientIdentifier] = useState('');
 
     useEffect(() => {
-        socketRef.current = io('http://localhost:3000');
+        socketRef.current = io('http://localhost:3001');
         socketRef.current.on('signal', handleSignal);
 
         navigator.mediaDevices.getUserMedia({ video: true })
@@ -26,7 +30,10 @@ const CameraStream = () => {
                 console.error("Error accessing the camera:", error);
                 setErrorMessage("Error accessing the camera.");
             });
-
+        // Generate a random 4-digit identifier
+        const identifier = Math.floor(1000 + Math.random() * 9000).toString();
+        setClientIdentifier(identifier);
+        socketRef.current.emit("register", identifier);
         return () => {
             if (socketRef.current) {
                 socketRef.current.disconnect();
@@ -71,31 +78,82 @@ const CameraStream = () => {
     const handleSignal = (data) => {
         if (!peerConnectionRef.current) return;
 
+        // Handle incoming ICE candidates
         if (data.candidate) {
             peerConnectionRef.current.addIceCandidate(new RTCIceCandidate(data.candidate));
-        } else if (data.offer) {
+        }
+
+        // Handle incoming offers
+        else if (data.offer) {
             peerConnectionRef.current.setRemoteDescription(new RTCSessionDescription(data.offer))
                 .then(() => peerConnectionRef.current.createAnswer())
                 .then(answer => peerConnectionRef.current.setLocalDescription(answer))
                 .then(() => {
                     socketRef.current.emit('signal', { answer: peerConnectionRef.current.localDescription });
+                })
+                .catch(error => {
+                    console.error('Error responding to offer:', error);
+                    setErrorMessage('Error responding to offer.');
                 });
-        } else if (data.answer) {
+        }
+
+        // Handle incoming answers
+        else if (data.answer) {
             peerConnectionRef.current.setRemoteDescription(new RTCSessionDescription(data.answer));
-        } else if (data.closeConnection) {
+        }
+
+        // Handle incoming call initiation
+        else if (data.callInitiated) {
+            const acceptCall = confirm(`Incoming call from ID: ${data.from}. Do you want to accept?`);
+            if (acceptCall) {
+                setIncomingCall(true);
+                socketRef.current.emit('call-accepted', {
+                    to: data.from,
+                    from: clientIdentifier
+                });
+
+                // Additional logic to create or accept WebRTC offer/answer
+            }
+        }
+
+        // Handle disconnection or call closing
+        else if (data.closeConnection) {
             closeConnection();
         }
     };
 
     const createOffer = () => {
-        peerConnectionRef.current.createOffer()
-            .then(offer => peerConnectionRef.current.setLocalDescription(offer))
+        const recipientId = prompt("Enter the recipient's ID:");
+        if (recipientId) {
+            // Request ID validation from the server
+            socketRef.current.emit('validate-id', { recipientId }, (response) => {
+                if (response.isValid) {
+                    setIsCallInitiated(true);
+                    socketRef.current.emit('call-initiated', {
+                        to: recipientId,
+                        from: clientIdentifier
+                    });
+                } else {
+                    alert("Recipient ID not found.");
+                }
+            });
+        }
+    };
+
+    // Function to handle call acceptance
+    const acceptCall = () => {
+        setIncomingCall(false); // Hide the 'Accept Call' button
+
+        // Create an answer to the caller's offer
+        peerConnectionRef.current.createAnswer()
+            .then(answer => peerConnectionRef.current.setLocalDescription(answer))
             .then(() => {
-                socketRef.current.emit('signal', { offer: peerConnectionRef.current.localDescription });
+                // Send the answer to the caller via the server
+                socketRef.current.emit('signal', { answer: peerConnectionRef.current.localDescription });
             })
             .catch(error => {
-                console.error('Error creating an offer:', error);
-                setErrorMessage('Error creating an offer.');
+                console.error('Error creating an answer:', error);
+                setErrorMessage('Error creating an answer.');
             });
     };
 
@@ -111,9 +169,15 @@ const CameraStream = () => {
 
     return (
         <div>
+            <p>Your ID: {clientIdentifier}</p> {/* Display the client's identifier */}
             <video ref={localVideoRef} autoPlay />
             <video ref={remoteVideoRef} autoPlay />
-            <button onClick={createOffer}>Call</button>
+            {!isCallInitiated && (
+                <button onClick={() => createOffer()}>
+                    Call
+                </button>
+            )}
+            {incomingCall && <button onClick={acceptCall}>Accept Call</button>}
             {errorMessage && <p>Error: {errorMessage}</p>}
         </div>
     );
