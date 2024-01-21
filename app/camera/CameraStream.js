@@ -1,8 +1,9 @@
 "use client"
 
-// components/CameraStream.js
 import { useEffect, useRef, useState } from 'react';
 import io from 'socket.io-client';
+
+const socketServer = process.env.REACT_APP_SOCKET_SERVER || 'http://localhost:3001';
 
 const CameraStream = () => {
     const localVideoRef = useRef(null);
@@ -10,13 +11,12 @@ const CameraStream = () => {
     const peerConnectionRef = useRef(null);
     const socketRef = useRef(null);
     const [errorMessage, setErrorMessage] = useState('');
-    // Add to the CameraStream component's state
     const [isCallInitiated, setIsCallInitiated] = useState(false);
     const [incomingCall, setIncomingCall] = useState(false);
     const [clientIdentifier, setClientIdentifier] = useState('');
 
     useEffect(() => {
-        socketRef.current = io('https://helpingeyes.tech:3001');
+        socketRef.current = io(socketServer);
         socketRef.current.on('signal', handleSignal);
 
         navigator.mediaDevices.getUserMedia({
@@ -33,10 +33,11 @@ const CameraStream = () => {
                 console.error("Error accessing the camera:", error);
                 setErrorMessage("Error accessing the camera.");
             });
-        // Generate a random 4-digit identifier
+
         const identifier = Math.floor(1000 + Math.random() * 9000).toString();
         setClientIdentifier(identifier);
         socketRef.current.emit("register", identifier);
+
         return () => {
             if (socketRef.current) {
                 socketRef.current.disconnect();
