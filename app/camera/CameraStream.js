@@ -19,7 +19,10 @@ const CameraStream = () => {
         socketRef.current = io('http://helpingeyes.tech:3001');
         socketRef.current.on('signal', handleSignal);
 
-        navigator.mediaDevices.getUserMedia({ video: true })
+        navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'environment' },
+            audio: true
+        })
             .then((stream) => {
                 if (localVideoRef.current) {
                     localVideoRef.current.srcObject = stream;
