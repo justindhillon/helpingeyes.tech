@@ -30,7 +30,7 @@
     ".next/types/**/*.ts",
     "**/*.ts",
     "**/*.tsx"
-  ],
+, "app/camera/page.js", "app/camera/page.js"  ],
   "exclude": [
     "node_modules"
   ]

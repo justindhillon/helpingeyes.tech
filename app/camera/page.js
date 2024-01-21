@@ -1,10 +1,13 @@
-import CameraStream from "./CameraStream";
+// pages/index.tsx
+import { Landing } from "./Landing";
 
-export default function Home() {
+const Home = () => {
   return (
-      <div>
-        <h1>Live Camera Stream</h1>
-        <CameraStream />
-      </div>
+    <div>
+      <h1>My Next.js App</h1>
+      <Landing />
+    </div>
   );
-}
+};
+
+export default Home;
