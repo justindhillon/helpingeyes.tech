@@ -16,7 +16,7 @@ const CameraStream = () => {
     const [clientIdentifier, setClientIdentifier] = useState('');
 
     useEffect(() => {
-        socketRef.current = io('http://localhost:3001');
+        socketRef.current = io('http://helpingeyes.tech:3001');
         socketRef.current.on('signal', handleSignal);
 
         navigator.mediaDevices.getUserMedia({ video: true })
@@ -104,6 +104,7 @@ const CameraStream = () => {
 
         // Handle incoming call initiation
         else if (data.callInitiated) {
+            console.log(`Received call from ${data.from}.`);
             const acceptCall = confirm(`Incoming call from ID: ${data.from}. Do you want to accept?`);
             if (acceptCall) {
                 setIncomingCall(true);
