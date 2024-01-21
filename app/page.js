@@ -1,17 +1,10 @@
-import { options } from "./api/auth/[...nextauth]/options"
-import { getServerSession } from "next-auth/next"
-import UserCard from "./components/UserCard"
+import CameraStream from "@/app/CameraStream";
 
-export default async function Home() {
-  const session = await getServerSession(options)
-
+export default function Home() {
   return (
-    <>
-      {session ? (
-        <UserCard user={session?.user} pagetype={"Home"} />
-      ) : (
-        <h1 className="text-5xl">You Shall Not Pass!</h1>
-      )}
-    </>
-  )
+      <div>
+        <h1>Live Camera Stream</h1>
+        <CameraStream />
+      </div>
+  );
 }
