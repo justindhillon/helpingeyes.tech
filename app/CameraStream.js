@@ -12,7 +12,7 @@ const CameraStream = () => {
     const [errorMessage, setErrorMessage] = useState('');
 
     useEffect(() => {
-        socketRef.current = io('http://localhost:3000');
+        socketRef.current = io('http://localhost:3001');
         socketRef.current.on('signal', handleSignal);
 
         navigator.mediaDevices.getUserMedia({ video: true })
