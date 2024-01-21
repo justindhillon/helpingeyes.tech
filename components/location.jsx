@@ -58,7 +58,7 @@ function LocationList() {
                     ))}
                 </ul>
             </div>
-            <NavigationDetail selectedLocation={selectedLocation} />
+            {/* <NavigationDetail selectedLocation={selectedLocation} /> */}
         </>
     );
 }

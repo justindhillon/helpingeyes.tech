@@ -3,7 +3,6 @@
 import React, { useEffect, useRef } from 'react';
 import {
     E_SDK_EVENT,
-    E_CAMERA_EVENT,
     getVenueMaker,
     MappedinDestinationSet,
     showVenue,
