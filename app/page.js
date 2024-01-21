@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -46,14 +47,18 @@ export default function Home() {
 
 
         <div className="mt-12 w-full flex flex-col gap-10 lg:mt-24 lg:flex-row">
+        <Link href="/map">
           <button type="button" className="text-white rounded px-10 py-5 w-full
           bg-gradient-to-r from-pink-500 to-yellow-500 hover:brightness-50">
             Get Help
           </button>
+        </Link>
+        <Link href="/map">
           <button type="button" className="text-white rounded px-10 py-5 w-full
           bg-gradient-to-r from-pink-500 to-yellow-500 hover:brightness-50">
             Volunteer
           </button>
+        </Link>
         </div>
       </div>
     </main>
